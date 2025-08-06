@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel='icon' href="{{ url_for('static', filename='cloudflare.ico') }}" type='image/x-icon'>
+   <!-- Open Graph meta tags -->
+   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, nocache">
+   <meta property="og:title" content="Access Blocked">
+   <meta property="og:description" content="Access to this website has been restricted due to security policies enforced by Cloudflare. Automated crawlers, scrapers, or suspicious activity have been detected and blocked to protect site integrity. Please visit the site in a web browser for more information.">
+   <meta property="og:image" content="https://developers.cloudflare.com/cloudflare-one/static/cloudflare-logo.c6b7b7e7.svg">
+   <meta property="og:type" content="website">
+   <title>Protected Site</title>
+   <style>
+     body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: #f6f8fa;
+     }
+     .container {
+      width: 80%;
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 24px;
+      background-color: #fff;
+      border: 1px solid #f38020;
+      box-shadow: 0 0 12px rgba(243,128,32,0.10);
+      text-align: center;
+      color: #222;
+      border-radius: 10px;
+     }
+     h1 {
+      color: #f38020;
+      margin-bottom: 16px;
+     }
+     p {
+      margin-bottom: 18px;
+     }
+     img {
+      width: 120px;
+      margin-top: 18px;
+     }
+     form {
+      margin-top: 18px;
+     }
+     input[type=submit] {
+      padding: 10px 24px;
+      background-color: #f38020;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 1rem;
+      transition: background 0.2s;
+     }
+     input[type=submit]:hover {
+      background-color: #ffa94d;
+     }
+     #accessError {
+      display: none;
+      color: #fff;
+      background: #f38020;
+      border: 1px solid #f38020;
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 6px;
+     }
+     #violationSource strong {
+      color: #f38020;
+     }
+   </style>
+</head>
+<body>
+   <div class="container">
+     <h1>Site Access Restricted</h1>
+     <p id="violationSource">
+       <strong>Source of Violation:</strong>
+       <p id="userIp">_</p>
+     </p>
+     <p>This website is protected by <strong>Cloudflare</strong> to ensure security and reliability.</p>
+     <p>If you believe you should have access, please contact the site administrator for assistance.</p>
+     <p>All access attempts are monitored to maintain the integrity of the site.</p>
+     <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/fdh7MDcUlyADCr49kuUs2/5f780ced9677a05d52b05605be88bc6f/cf-logo-v-rgb.png" alt="Cloudflare Logo">
+     <form id="accessForm" action="#" method="get">
+       <input type="hidden" name="redirect_uri" value="">
+       <input type="submit" value="Request Access">
+     </form>
+     <div id="accessError">
+       <strong>Access request failed:</strong> Please contact the site administrator for access.
+     </div>
+     <script src="{{ url_for('static', filename='index.js') }}"></script>
+   </div>
+</body>
+</html>

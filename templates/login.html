@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in to continue - Cloudflare Access</title>
+    <link rel="icon" type="image/x-icon" href="https://dash.cloudflare.com/favicon.ico">
+    <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            min-height: 100vh;
+            background: #f6f8fa;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            margin: 0;
+        }
+        .cf-login-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 24px 0 rgba(60,72,88,.15);
+            width: 100%;
+            max-width: 360px;
+            padding: 2.5rem 2rem 2rem 2rem;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .cf-logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .cf-logo img {
+            height: 40px;
+        }
+        .cf-login-header {
+            text-align: center;
+        }
+        .cf-login-header h1 {
+            font-size: 1.25rem;
+            color: #222;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .cf-login-header p {
+            color: #5d6b82;
+            font-size: 0.97rem;
+        }
+        .flash-messages {
+            margin-bottom: 1rem;
+        }
+        .flash-message {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        .flash-success {
+            background-color: #e6f4ea;
+            color: #22743a;
+            border: 1px solid #b7e4c7;
+        }
+        .flash-error {
+            background-color: #fff0f0;
+            color: #c92a2a;
+            border: 1px solid #ffd6d6;
+        }
+        .flash-info {
+            background-color: #e8f4fd;
+            color: #1864ab;
+            border: 1px solid #b6e0fe;
+        }
+        .cf-form-group {
+            margin-bottom: 1.25rem;
+        }
+        .cf-login-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: #222;
+            font-weight: 500;
+            font-size: 0.97rem;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            margin: 0 auto;
+            padding: 1rem 0.9rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 16px; /* Prevents zoom on iOS */
+            background: #f9fafb;
+            color: #222;
+            transition: border-color 0.2s;
+            display: block;
+            text-align: center;
+            -webkit-appearance: none;
+            appearance: none;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #f38020;
+            outline: none;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(243, 128, 32, 0.1);
+        }
+        .cf-login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(90deg, #f38020 0%, #f7b500 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.08rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+            box-shadow: 0 1px 2px rgba(243,128,32,0.08);
+            margin-top: 0.5rem;
+            min-height: 48px;
+            touch-action: manipulation;
+        }
+        .cf-login-btn:hover {
+            background: linear-gradient(90deg, #f7b500 0%, #f38020 100%);
+            box-shadow: 0 4px 12px rgba(243,128,32,0.25);
+        }
+        .cf-login-btn:active {
+            transform: translateY(1px);
+        }
+        .cf-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #8a94a6;
+            font-size: 0.85rem;
+        }
+        .cf-footer a {
+            color: #f38020;
+            text-decoration: none;
+        }
+        @media (max-width: 480px) {
+            body {
+                padding: 0.5rem;
+            }
+            .cf-login-container {
+                padding: 2rem 1.5rem 1.5rem 1.5rem;
+                margin: 1.25rem;
+            }
+            .cf-login-header h1 {
+                font-size: 1.1rem;
+            }
+            .cf-login-header p {
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+            .cf-logo img {
+                height: 35px;
+            }
+            input[type="text"],
+            input[type="password"] {
+                padding: 1rem 0.8rem;
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+            .cf-login-btn {
+                font-size: 1rem;
+                padding: 1rem;
+            }
+        }
+     
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #181c24;
+            }
+            .cf-login-container {
+                background: #23272f;
+                color: #e2e8f0;
+                box-shadow: 0 2px 24px 0 rgba(0,0,0,.25);
+            }
+            .cf-login-header h1,
+            label {
+                color: #e2e8f0;
+            }
+            .cf-login-header p,
+            .cf-footer {
+                color: #a0aec0;
+            }
+            input[type="text"],
+            input[type="password"] {
+                background: #23272f;
+                border-color: #3a3f4b;
+                color: #e2e8f0;
+            }
+            input[type="text"]:focus,
+            input[type="password"]:focus {
+                background: #23272f;
+                border-color: #f38020;
+                box-shadow: 0 0 0 3px rgba(243, 128, 32, 0.2);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cf-login-container">
+        <div class="cf-logo">
+            <img src="{{ url_for('static', filename='cloudflare.ico') }}" alt="Cloudflare Logo" />
+        </div>
+        <div class="cf-login-header">
+            <h1>Authorization required</h1>
+            <p>A code has been emailed to you. Enter it below to complete your login:</p>
+        </div>
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        <form method="POST" class="cf-login-form">
+            <div class="cf-form-group">
+                <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Password">
+            </div>
+            <button type="submit" class="cf-login-btn">Log in</button>
+        </form>
+        <div class="cf-footer">
+            <p><a href="https://pages.cloudflare.com/" target="_blank" rel="noopener">Cloudflare Zero Trust</a></p>
+        </div>
+    </div>
+</body>
+</html>
