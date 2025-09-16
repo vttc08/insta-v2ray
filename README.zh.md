@@ -33,6 +33,8 @@ Insta-V2Ray 是一个 Python-Flask 全栈应用程序，专为那些位于 CG-NA
 git clone
 cd insta-v2ray
 pip install -r requirements.txt
+python -m helper.downloader cloudflared
+python -m helper.downloader zrok
 python main.py
 ```
 
@@ -47,6 +49,17 @@ python main.py
 配置通过环境变量完成。您可以将 `.env.example` 文件复制为 `.env` 并编辑它来设置您的配置。确保为 API 和订阅访问设置强密码。
 
 要添加您的 V2Ray 隧道，请将 V2Ray URL 格式 `vless://,vmess://` 添加到 `.env` 文件中的 `TUNNEL_URLS` 环境变量，用逗号分隔。目前仅支持 VLESS 和 VMess 协议。
+
+### 隧道二进制文件
+
+某些隧道提供商需要额外的二进制程序。可以使用该辅助脚本为当前平台下载对应版本：
+
+```bash
+python -m helper.downloader cloudflared
+python -m helper.downloader zrok --version 0.4.29  # 可选指定版本
+```
+
+下载后的文件会放在 `BIN_PATH` 指定的目录（默认 `./bin`）。
 
 - 您必须使用 WebSocket 或 gRPC 传输。
 - 如果您的 V2Ray URL 不在本机或 localhost 上，您可能需要使用 SSH 隧道或其他解决方案。

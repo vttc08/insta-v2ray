@@ -33,6 +33,9 @@ Simple, just clone the repo, install Python dependencies and run the app.
 git clone
 cd insta-v2ray
 pip install -r requirements.txt
+# optional helper to fetch tunnel binaries
+python -m helper.downloader cloudflared
+python -m helper.downloader zrok
 python main.py
 ```
 
@@ -47,6 +50,17 @@ Please refer to the Wiki for detailed configuration instructions. Below are some
 Configuration is done via environment variables. You can copy the `.env.example` file to `.env` and edit it to set your configuration. Ensure you set a strong password for API and subscription access.
 
 To add your V2Ray tunnels, add the V2Ray URL format `vless://, vmess://` to the `TUNNEL_URLS` environment variable in the `.env` file, separated by commas. Currently, only VLESS and VMess protocols are supported.
+
+### Provider binaries
+
+Many tunnel providers rely on a companion binary. You can fetch the correct build for your platform with the helper script:
+
+```bash
+python -m helper.downloader cloudflared
+python -m helper.downloader zrok --version 0.4.29  # optional specific release
+```
+
+The files are installed into the directory pointed to by `BIN_PATH` (defaults to `./bin`).
 
 - You must use transport WebSocket or gRPC.
 - You may need to use SSH tunneling or other solutions if your V2Ray URL is not on this machine or localhost.
