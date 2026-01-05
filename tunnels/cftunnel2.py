@@ -2,27 +2,19 @@ import subprocess
 import threading
 import re
 import time
-import queue
 import logging
+from tunnels.base import __BaseTunnel
 
 logger = logging.getLogger(__name__)
 
-class NewCFTunnel:
-    tunnels = 0
+class NewCFTunnel(__BaseTunnel):
+    """
+    This is an example using the new base class method. But still maintaining the old code structure which allows overriding methods.
+    """
+    limit = 99
+    
     def __init__(self, host: str, port: int):
-        self.host = host
-        self.port = port
-        self.process = None
-        self.limit = 20
-        self.tunnel_url = None
-        NewCFTunnel.tunnels += 1
-        if NewCFTunnel.tunnels > self.limit:
-            raise RuntimeError(f"Maximum of {self.limit} tunnels can be started at a time.") # Modified error message for clarity
-
-        # use this code to implement logging
-        self.log_queue = queue.Queue() # Create a queue to store log lines
-        self.log_thread = None
-        self._url_found_event = threading.Event() # Event to signal when URL is found
+        super().__init__(host, port)
 
     def read_stdout(self):
         """Reads stdout continuously, puts lines into a queue, and looks for the tunnel URL."""
