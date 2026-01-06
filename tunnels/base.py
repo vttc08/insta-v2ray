@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class __BaseTunnel:
     tunnels = 0
-    def __init__(self, host: str, port: int, prereq: bool = lambda: True):
+    def __init__(self, host: str, port: int, disabled: bool = False):
         self.host = host
         self.port = port
         self.process = None
@@ -32,17 +32,8 @@ class __BaseTunnel:
         else:
             self.timeout = 10  # default timeout
 
-        try:
-            ready = prereq()
-        except Exception as e:
-            error = f"An error occured during prerequisites check for {self.__class__.__name__}: {e}"
-            logger.error(error)
-            raise RuntimeError(error)
-        finally:
-            if not ready:
-                error = f"Prerequisites not met for {self.__class__.__name__}"
-                logger.error(error)
-                raise RuntimeError(error)
+        if disabled:
+            raise RuntimeError(f"{child.__name__} is disabled due to configuration issue, please check the logs.")
 
     def read_stdout(self):
         """Reads stdout continuously, puts lines into a queue, and looks for the tunnel URL."""

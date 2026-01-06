@@ -1,6 +1,7 @@
 from tunnels.base import __BaseTunnel
 import logging
-from helper.check import check_binary_status
+from helper.check import check_all_binaries
+from configuration import bin_path, cloudflare_binary
 
 logger = logging.getLogger(__name__)
 
