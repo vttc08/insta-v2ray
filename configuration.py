@@ -18,7 +18,8 @@ subscription_password = os.getenv("SUBSCRIPTION_PASSWORD","")
 if len(subscription_password) < 16:
     print("Insecure subscription password, must be at least 16 characters long, contain uppercase letters and digits.")
     subscription_password = hashlib.sha256(subscription_password.encode()).hexdigest()
-    print("Using hashed subscription password:", subscription_password)    
+    print("Using hashed subscription password:", subscription_password)
+custom_frontend = os.getenv("CUSTOM_FRONTEND", "false").lower() in ("true", "1", "yes")
 
 # Tunnel URLs
 tunnel_urls_env = os.getenv("TUNNEL_URLS", "")

@@ -1,5 +1,5 @@
 import logging
-from configuration import api_password, subscription_password, tunnel_urls, setup_logging
+from configuration import api_password, subscription_password, tunnel_urls, setup_logging, custom_frontend
 setup_logging()  # Initialize logging configuration
 logger = logging.getLogger(__name__)
 
@@ -140,7 +140,14 @@ def prepare_tunnels():
 
 @app.get("/")
 def index():
-    return flask.render_template("index.html"), 404
+    # Check if custom index.html exists in public folder
+    public_index_path = os.path.join(app.root_path, 'public', 'index.html')
+    if os.path.exists(public_index_path) and custom_frontend:
+        return flask.send_from_directory('public', 'index.html'), 404
+    else:
+        # Fallback to default template
+        return flask.render_template("index.html"), 404
+
 
 # Providers
 @app.get(f"/{api_password}/providers")
@@ -305,7 +312,7 @@ def reset_all_tunnels():
         ), 500
 
 
-@app.route("/dashboard")
+@app.route(f"/{api_password}/dashboard")
 @login_required
 def dashboard():
     return flask.render_template(
