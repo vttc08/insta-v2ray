@@ -1,0 +1,163 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #cbd4cf;
+}
+h1 {
+    color: #333;
+    text-align: center;
+}
+.container {
+    width: 80%;
+    margin: 0 auto;
+    overflow: hidden;
+}
+.innergrid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+.copybox {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    background-color: #b4f0c9;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.copybtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.card {
+    background-color: #9ce6b6;
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 12px;
+}
+.card-unavailable, .card-unavailable .copybox {
+    background-color: #eec2c5;
+    padding: 12px;
+    cursor: not-allowed;
+}
+.card-unavailable .copybox {
+    background-color: #f5d1d6;
+    color: #721c24;
+}
+.card-unavailable .copybtn {
+    display: none;
+}
+.card-unavailable .truncate {
+    color: #6c757d;
+    text-decoration: line-through;
+    cursor: not-allowed;
+}
+.btn {
+    display: flex;
+    flex-direction: column;
+}
+.provider-name {
+    color: #333;
+    margin: 0px;
+    font-weight: bold;
+}
+.truncate {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    max-width: 300px;
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+.toast.hide {
+opacity: 0;
+display: none;
+}
+.controls {
+    padding: 8px 20px;
+    border: none;
+    background: #086788;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 2.5em;
+    margin: 5px 0;
+}
+.flex {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.heading-text {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px;
+}
+.heading-text h2 {
+    margin: 0;
+    margin-left: 10px;
+    font-size: 1.5em;
+    color: #333;
+}
+button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.preload {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+    padding: 30px 50px; /* Generous padding */
+    border-radius: 10px;
+    font-size: 1.2em;
+    text-align: center;
+    z-index: 2000;
+    /* This is the key: it's hidden by default using display: none; */
+    display: none;
+    /* Remove opacity/visibility transitions as you're using display */
+}
+
+/* CSS for the Spinner (add this if you haven't) */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1); /* Light grey base for the circle */
+    border-top: 4px solid #3498db; /* Blue top border for the animation */
+    border-radius: 50%; /* Make it a circle */
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite; /* Apply the spin animation */
+    margin: 0 auto 15px auto; /* Center the spinner and add space below it */
+}
+
+/* Keyframe animation for the spinner */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+#providers {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
+    gap: 10px;
+    margin: 10px;
+}
