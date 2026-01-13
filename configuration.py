@@ -2,6 +2,7 @@ import dotenv
 import os
 import hashlib
 import logging
+from logging.handlers import RotatingFileHandler
 
 dotenv.load_dotenv()
 # Development mode
@@ -70,11 +71,17 @@ class CustomFormatter(logging.Formatter):
 def setup_logging():
     streamHandler = logging.StreamHandler()
     streamHandler.setFormatter(CustomFormatter())
-    fileHandler = logging.FileHandler("app.log")
+    fileHandler = RotatingFileHandler(
+        filename='app.log',
+        mode="a",
+        maxBytes=256*1024, # 256 KB
+        backupCount=1
+    )
     fileHandler.setFormatter(logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
     ))
     logging.basicConfig(
         level=logging.INFO,
-        handlers=[streamHandler, fileHandler]
+        handlers=[streamHandler, fileHandler],
+        force=True
     )

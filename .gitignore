@@ -167,6 +167,7 @@ cython_debug/
 
 # Project-specific files
 app.log
+app.log.1
 *.log
 
 # SSH keys

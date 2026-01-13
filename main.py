@@ -11,11 +11,13 @@ import flask
 from flask import session, request, redirect, url_for, flash
 import json
 import os
-from functools import wraps
+from routes.log import log_bp
+from routes.auth import login_required
 
 tunnels = tunnel_urls
 
 app = flask.Flask(__name__)
+app.register_blueprint(log_bp)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'your-secret-key')
 
 @app.route('/favicon.ico')
@@ -27,15 +29,6 @@ tun_tasks = [] # this is what we do for CRUD
 my_providers = [
     {"id": i, "provider": p, "user_enabled": True} for i, p in enumerate(providers)
 ]
-
-# Authentication decorator
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'logged_in' not in session:
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 # https://stackoverflow.com/a/53112659
 def is_jsonable(x):

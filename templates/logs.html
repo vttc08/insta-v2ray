@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Logs</title>
+</head>
+<body>
+    <data id="apiPath" value="{{ api_path }}"></data>
+    <div class="preload">
+        <div class="spinner"></div> Loading...
+    </div>
+    <div class="heading-text">
+        <h2>Logs</h2>
+    </div>
+    <div id="providers-toggles">
+        <div id="providers">
+            <!-- Providers will be rendered here -->
+        </div>
+    </div>
+    <div class="heading-text">
+        <h2>Error Level</h2>
+    </div>
+    <div id="error-level-toggles">
+        <div id="error-levels">
+            <!-- Error levels will be rendered here -->
+            <div class="provider">
+                <input type="checkbox" id="error" name="error" value="error" onchange="updateErrorLevelSelection(this)">
+                <label for="error">Error</label>
+            </div>
+            <div class="provider">
+                <input type="checkbox" id="warning" name="warning" value="warning" onchange="updateErrorLevelSelection(this)">
+                <label for="warning">Warning</label>
+            </div>
+            <div class="provider">
+                <input type="checkbox" id="info" name="info" value="info" onchange="updateErrorLevelSelection(this)">
+                <label for="info">Info</label>
+            </div>
+        </div>
+    </div>
+    <div id="log-entries" class="container" style="width: 90%;">
+        <!-- Logs will be rendered here dynamically -->
+    </div>
+</body>
+
+<script src="{{ url_for('static', filename='logs.js') }}"></script>
+</html>
