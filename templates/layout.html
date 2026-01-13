@@ -16,11 +16,24 @@
         <div class="spinner"></div> Loading...
     </div>
     <div class="container">
-        <h1>Welcome to My Website</h1>
-        <p>This is a simple layout template.</p>
-        <button class="controls" onclick="restartAllTunnels()">救命🆘</button>
-        <button class="controls" onclick="stopAllTunnels()">逃跑🚨</button>
+        <h1>Insta-V2Ray</h1>
+        <p>Manage your V2Ray tunnels and providers.</p>
+        <div class="btn-flex">
+            <button class="controls" onclick="restartAllTunnels()">▶️</button>
+            <button class="controls" onclick="stopAllTunnels()">🚫</button>
+        </div>
     </div>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="qrcode"></div>
+    </div>
+    <!---->
+
+    </div>   
     <div class="heading-text">
         <h2>Providers</h2>
         <button onclick="toggleShowHide()">
@@ -55,5 +68,6 @@
     </div>
     <div class="gap" style="height: 100px;"></div>
 </body>
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 </html>

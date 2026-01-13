@@ -10,6 +10,12 @@ const restartTunnelSVG = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" 
 
 const stopTunnelSVG = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="36px" fill="#700"><path d="m336-280 144-144 144 144 56-56-144-144 144-144-56-56-144 144-144-144-56 56 144 144-144 144 56 56ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>`;
 
+const qrSVG = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#333">
+<path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM19 13h2v2h-2zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM15 19h2v2h-2zM17 17h2v2h-2zM17 13h2v2h-2zM19 15h2v2h-2zM19 19h2v2h-2z"/>
+</svg>`;
+
+
+
 // let apiPath = "/{{ api_path }}";
 // let subscriptionPassword = "{{ subscription_password }}";
 
@@ -35,6 +41,7 @@ function renderTunnels(tunnels) {
                 <div class="btn">
                     <button onclick="restartTunnel(${tunnel.id})">${restartTunnelSVG}</button>
                     <button onclick="stopTunnel(${tunnel.id})">${stopTunnelSVG}</button>
+                    <button onclick="renderQRCode('${tunnel.url}')">${qrSVG}</button>
                 </div>
             </div>
             <p class="truncate" style="padding: 0px 20px; margin:0px;font-size:0.8em;">${tunnel.public_url}</p>
@@ -109,6 +116,38 @@ function restartTunnel(id) {
         showToast('API error.', '#DE1A1A');
     });
 }
+
+// https://www.w3schools.com/howto/howto_css_modals.asp
+var modal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+} 
+
+function renderQRCode(url) {
+    modal.style.display = "block";
+    qrcode.makeCode(url);
+}
+
+const qrcode = new QRCode(document.getElementById('qrcode'), {
+    colorDark : '#000',
+    colorLight : '#fff',
+    correctLevel : QRCode.CorrectLevel.L
+});
 
 function restartAllTunnels(scope="all") {
     fetchwithPreload(apiPath + '/tunnels', 'POST', preload=false, kwargs={
