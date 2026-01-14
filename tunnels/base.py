@@ -32,6 +32,11 @@ class __BaseTunnel:
         else:
             self.timeout = 10  # default timeout
 
+        if hasattr(child, 'timer'):
+            self.timer = child.timer
+        else:
+            self.timer = {"keepalive": 0, "expire": 3600*8} # no keepalive, 8 hours autoshutdown
+
         if disabled:
             raise RuntimeError(f"{child.__name__} is disabled due to configuration issue, please check the logs.")
 

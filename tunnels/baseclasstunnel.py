@@ -12,6 +12,7 @@ class CloudflareBaseClass(__BaseTunnel):
     limit = 1
     tunnel_url_regex = r"https://[^\s]+\.trycloudflare.com"
     cmdline = "python3 cloudflare.py"
+    timer = {"keepalive": 10,"expire": 18}
 
     def __init__(self, host: str, port: int):
         super().__init__(host, port)

@@ -7,12 +7,14 @@ from v2ray.v2ray import VLESS, VMESS
 from dataclasses import dataclass, field
 import subprocess
 import time
-from typing import Optional
+from typing import Optional, Any
 from helper.subscription import add_subscription, remove_subscription
 from configuration import mode
 import importlib
 import inspect
 from pathlib import Path
+from jobs import scheduler
+import datetime
 
 import logging
 logger = logging.getLogger(__name__)
@@ -34,7 +36,7 @@ for provider_file in provider_dir.glob("*.py"):
         if inspect.isclass(obj) and hasattr(obj, 'start_tunnel') and obj.__name__ not in ignored_tunnels and not obj.__name__.startswith("__"):
             providers.append(obj)
             logger.info(f"Registered provider: {obj.__name__}")
- 
+
 @dataclass
 class Tunnel:
     url: str # URL of V2Ray format
@@ -44,7 +46,10 @@ class Tunnel:
     public_url: Optional[str] = None
     process: Optional[subprocess.Popen] = None
     start_time: Optional[float] = None
-    logs: list[str] = field(default_factory=list)     
+    logs: list[str] = field(default_factory=list)
+
+    keepalived = False
+    expire_job: Any = None # tracking auto expire     
 
     def __eq__(self, other):
         if isinstance(other, Tunnel):
@@ -70,6 +75,10 @@ class Tunnel:
         self.provider_instance = self.provider_instance(host=host, port=port)
         self.provider_name = self.provider_instance.__class__.__name__
 
+    @property
+    def hashed(self):
+        return hash(self.url + self.provider_name)
+
     def start(self):
         if self.provider_instance is None:
             raise ValueError("Provider instance is not set.")
@@ -84,10 +93,27 @@ class Tunnel:
         self.v.update(self.public_url, self.provider_name)
         self.url = self.v.url
         add_subscription(self)  # Add the new URL to subscriptions
+        keepalive = self.provider_instance.timer.get('keepalive')
+        expire = self.provider_instance.timer.get('expire')
+        if keepalive > 0:
+            scheduler.add_job(
+                func=self.reset, 
+                trigger="interval", seconds=keepalive, misfire_grace_time=60,
+                id=f"keepalive-{self.hashed}"
+            )
+        if expire > 0 and not self.keepalived:
+            expiry = datetime.datetime.now() + datetime.timedelta(seconds=expire)
+            scheduler.add_job(
+                func=self.stop, 
+                trigger="date", run_date=expiry, misfire_grace_time=60,
+                id=f"expire-{self.hashed}"
+            )
+            self.expire_job = scheduler.get_job(f'expire-{self.hashed}')
         logger.info(f"{self.provider_name} tunnel started: {self.public_url}")
 
     def stop(self):
         if self.process:
+            curr_hash = self.hashed
             self.process.terminate()
             self.process.wait()
             logger.info(f"{self.provider_name} tunnel stopped: {self.public_url}")
@@ -97,9 +123,25 @@ class Tunnel:
             self.public_url = None
             self.start_time = None
             remove_subscription(self)
+
+            try:
+                scheduler.remove_job(f"keepalive-{curr_hash}") # remove keepalive, expire will auto remove
+            except: pass
+            try:
+                # if user manually stop/start, remove the expire task, unless if it's being keepalived by the scheduler
+                if not self.keepalived:
+                    scheduler.remove_job(f"expire-{curr_hash}")
+            except: pass
         else:
             logger.warning(f"{self.provider_name} tunnel has no process to terminate.")
     
+    def reset(self):
+        # only the keepalive scheduler will use reset, user manual will only use start/stop
+        self.keepalived = True
+        self.stop()
+        self.start()
+        self.keepalived = False
+
     def get_logs(self):
         prov_instance = self.provider_instance
         while not prov_instance.log_queue.empty():
@@ -107,3 +149,6 @@ class Tunnel:
             if log_line is None:
                 break
             self.logs.append(log_line)
+
+    def get_jobs(self):
+        return scheduler.get_jobs()

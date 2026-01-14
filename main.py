@@ -13,18 +13,26 @@ import json
 import os
 from routes.log import log_bp
 from routes.auth import login_required
+from flask_apscheduler import APScheduler
+from tunnelmgr import stop_one_tunnel, reset_one_tunnel, tunnels, tun_tasks, prepare_tunnels
 
-tunnels = tunnel_urls
+# tunnels = tunnel_urls
 
 app = flask.Flask(__name__)
 app.register_blueprint(log_bp)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'your-secret-key')
+app.config["SCHEDULER_API_ENABLED"] = True
+
+# scheduler = APScheduler()
+from jobs import scheduler
+scheduler.init_app(app)
+scheduler.start()
 
 @app.route('/favicon.ico')
 def fav():
     return flask.send_from_directory(os.path.join(app.root_path, 'static'),'favicon.ico')
 
-tun_tasks = [] # this is what we do for CRUD
+# tun_tasks = [] # this is what we do for CRUD
 
 my_providers = [
     {"id": i, "provider": p, "user_enabled": True} for i, p in enumerate(providers)
@@ -49,34 +57,7 @@ def serialize(obj):
             serialized_dict[k] = type(obj_dict[k]).__name__
     return serialized_dict
 
-# Stopping tunnels
-def stop_one_tunnel(tunnel):
-    try:
-        tunnel.stop()
-    except Exception as e:
-        raise RuntimeError(str(e))
-
-def stop_tunnels_all():
-    for tunnel in tun_tasks:
-        try:
-            tunnel.stop()
-        except Exception as e:
-            logger.error(api_error_stopping_tunnel(str(e)))
-
 # Start or restart tunnels
-
-def reset_one_tunnel(tunnel):
-    """
-    Reset a single tunnel
-    """
-    try:
-        tunnel.stop()
-    except Exception as e:
-        logger.error(f"Error stopping tunnel: {e}")
-    try:
-        tunnel.start()
-    except Exception as e:
-        logger.error(f"Error starting tunnel: {e}")
 
 def reset_tunnels(scope:str="all"):
     """
@@ -116,20 +97,6 @@ def reset_tunnels(scope:str="all"):
         futures = {executor.submit(tunnel.start): tunnel for tunnel in allowed_tun_tasks}
         for f in concurrent.futures.as_completed(futures):
             tunnel = futures[f]
-
-# Initialize tun_tasks with the available tunnels and providers to be used
-def prepare_tunnels():
-    for tunnel in tunnels:
-        for provider in providers:
-            try:
-                tunnel_instance = Tunnel(
-                    url=tunnel,
-                    provider_instance=provider
-                )
-            except Exception as e:
-                continue
-            tun_tasks.append(tunnel_instance)
-
 
 @app.get("/")
 def index():

@@ -12,6 +12,7 @@ class NewCFTunnel(__BaseTunnel):
     This is an example using the new base class method. But still maintaining the old code structure which allows overriding methods.
     """
     limit = 99
+    timer = {'keepalive':0,'expire':20}
     
     def __init__(self, host: str, port: int):
         super().__init__(host, port)
