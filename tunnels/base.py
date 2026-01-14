@@ -5,7 +5,10 @@ import time
 import queue
 import logging
 from helper.error import tunnel_limits_exceeded, tunnel_url_not_found
+from configuration import default_timer
+import os
 
+global_environments = dict(os.environ)
 logger = logging.getLogger(__name__)
 
 class __BaseTunnel:
@@ -15,6 +18,7 @@ class __BaseTunnel:
         self.port = port
         self.process = None
         self.tunnel_url = None
+        self.timer = default_timer
 
         # use this code to implement logging
         self.log_queue = queue.Queue() # Create a queue to store log lines
@@ -34,9 +38,16 @@ class __BaseTunnel:
 
         if hasattr(child, 'timer'):
             self.timer = child.timer
-        else:
-            self.timer = {"keepalive": 0, "expire": 3600*8} # no keepalive, 8 hours autoshutdown
 
+        if \
+            f"{child.__name__.upper()}_KEEPALIVE" in global_environments.keys() and \
+            f"{child.__name__.upper()}_EXPIRE" in global_environments.keys():
+            timer = {
+                "keepalive": global_environments[f"{child.__name__.upper()}_KEEPALIVE"],
+                "expire": global_environments[f"{child.__name__.upper()}_EXPIRE"]
+            }
+            self.timer = {k:int(v) for k,v in timer.items()}
+    
         if disabled:
             raise RuntimeError(f"{child.__name__} is disabled due to configuration issue, please check the logs.")
 

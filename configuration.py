@@ -46,6 +46,11 @@ zrok_binary = os.getenv("ZROK_BINARY", "zrok")
 # Localtunnel
 localtunnel_binary = os.getenv("LOCAL_TUNNEL_BINARY", "lt")
 
+# Keepalived and expiry
+default_keepalived = int(os.getenv('DEFAULT_KEEPALIVED', 0))
+default_expiry = int(os.getenv('DEFAULT_EXPIRY', 28800))
+default_timer = {'keepalive': default_keepalived, 'expire': default_expiry}
+
 # Logging configuration
 class CustomFormatter(logging.Formatter):
     grey = "\x1b[38;20m"
