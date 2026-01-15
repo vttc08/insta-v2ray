@@ -19,6 +19,9 @@ const qrSVG = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 
 // let apiPath = "/{{ api_path }}";
 // let subscriptionPassword = "{{ subscription_password }}";
 
+// Global variable to track progress bar interval
+let pbarInterval = null;
+
 function renderTunnels(tunnels) {
     let container = document.getElementById('tunnels');
     if (tunnels.length === 0) {
@@ -30,7 +33,7 @@ function renderTunnels(tunnels) {
         let card = document.createElement('div');
         card.className = 'card' + (tunnel.process ? '' : ' card-unavailable');
         card.innerHTML = `
-            <p class="provider-name">${tunnel.provider_instance}</p>
+            <p onclick="showInfo(${tunnel.id})" class="provider-name">${tunnel.provider_instance}</p>
             <div class="innergrid">
                 <div class="copybox">
                     <a class="truncate" href="${tunnel.url}">${tunnel.url}</a>
@@ -41,7 +44,7 @@ function renderTunnels(tunnels) {
                 <div class="btn">
                     <button onclick="restartTunnel(${tunnel.id})">${restartTunnelSVG}</button>
                     <button onclick="stopTunnel(${tunnel.id})">${stopTunnelSVG}</button>
-                    <button onclick="renderQRCode('${tunnel.url}')">${qrSVG}</button>
+                    <button onclick="showInfo('${tunnel.id}')">${qrSVG}</button>
                 </div>
             </div>
             <p class="truncate" style="padding: 0px 20px; margin:0px;font-size:0.8em;">${tunnel.public_url}</p>
@@ -126,15 +129,21 @@ var btn = document.getElementById("myBtn");
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
 
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-  modal.style.display = "none";
+function cleanupModal() {
+    modal.style.display = "none";
+    if (pbarInterval) {
+        clearInterval(pbarInterval);
+        pbarInterval = null;
+    }
 }
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = cleanupModal;
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
   if (event.target == modal) {
-    modal.style.display = "none";
+    cleanupModal();
   }
 } 
 
@@ -143,11 +152,146 @@ function renderQRCode(url) {
     qrcode.makeCode(url);
 }
 
+function showInfo(id) {
+    modal.style.display = "block";
+    
+    // Clear any existing progress interval
+    if (pbarInterval) {
+        clearInterval(pbarInterval);
+        pbarInterval = null;
+    }
+    
+    fetchwithPreload(apiPath + '/tunnels/' + id, 'GET', false)
+    .then(data => {
+        // *1000 to convert to milliseconds
+        startTime = data.tun_start_time ? new Date(data.tun_start_time*1000).toLocaleString() : "N/A";
+        endTime = data.tun_end_time ? new Date(data.tun_end_time*1000).toLocaleString() : Infinity;
+        renderQRCode(data.url);
+        let infoContent = document.getElementById('infoContent');
+        infoContent.innerHTML = `
+            <div style="display: flex;">
+                <h2>Provider: ${data.provider_instance}</h2>
+                <div class="btn" style="flex-direction: row; margin-left: auto;">
+                    <button onclick="restartTunnel(${id})">${restartTunnelSVG}</button>
+                    <button onclick="stopTunnel(${id})">${stopTunnelSVG}</button>
+                </div>
+            </div>
+            <p><strong>URL:</strong> <a href="${data.url}" target="_blank">${data.url}</a></p>
+            <p><strong>Public URL:</strong> <a href="https://${data.public_url}" target="_blank">${data.public_url}</a></p>
+            <p><strong>Status:</strong> ${data.process ? 'Running' : 'Stopped'}</p>
+            <p><strong>Created At:</strong> ${startTime}</p>
+            <p><strong>Expiry:</strong> ${endTime}</p>
+            <div style="display:flex; gap: 5px;">
+                <div id="myProgress">
+                    <div id="myBar"></div>
+                </div> 
+                <button class="modalBtn" onclick="changeTunnelTimer(${id}, 0); cleanupModal();">Perma</button>
+            </div>
+            <div style="display:flex; gap: 5px;">
+                <input type="range" id="expireInput" min="1" max="1440"  style="flex:1; padding:5px;"/>
+                <p id="expireValue">Unknown</p>
+                <button class="modalBtn" onclick="setExpireHandler(${id}); cleanupModal();">Set Expiry</button>
+            </div>
+        `;
+        // Expire Input
+        const expireInput = document.getElementById('expireInput');
+        const expireValue = document.getElementById('expireValue');
+    
+        expireInput.addEventListener('input', function() {
+            expireValue.textContent = `${this.value} min`;
+        });
+        
+        // Start progress bar if we have valid start and end times
+        if (data.tun_start_time && data.tun_end_time) {
+            startProgressBar(data.tun_start_time * 1000, data.tun_end_time * 1000);
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching tunnel info:', error);
+        showToast('Failed to fetch tunnel info.', '#DE1A1A');
+    });
+}
+
+function setExpireHandler(id) {
+    const expireTime = document.getElementById('expireInput').value;
+    const expireMinutes = parseInt(expireTime);
+    changeTunnelTimer(id, expireMinutes);
+}
+
+function startProgressBar(startTimeMs, endTimeMs) {
+    const progressBar = document.getElementById('myBar');
+    
+    if (!progressBar) return;
+    
+    function updateProgress() {
+        const now = Date.now();
+        const totalDuration = endTimeMs - startTimeMs;
+        const elapsed = now - startTimeMs;
+        const remaining = endTimeMs - now;
+        
+        // Calculate percentage (100% at start, 0% at expiry)
+        let percentage;
+        if (now < startTimeMs) {
+            // Before start time
+            percentage = 100;
+        } else if (now >= endTimeMs) {
+            // After expiry
+            percentage = 0;
+        } else {
+            // During active period
+            percentage = Math.max(0, ((endTimeMs - now) / totalDuration) * 100);
+        }
+        
+        // Update progress bar
+        progressBar.style.width = percentage + '%';
+        
+        // Update color
+        if (percentage > 50) {
+            progressBar.style.backgroundColor = '#4CAF50'; // Green
+        } else if (percentage > 20) {
+            progressBar.style.backgroundColor = '#FF9800'; // Orange
+        } else {
+            progressBar.style.backgroundColor = '#F44336'; // Red
+        }
+
+        if (!(remaining > 0)) {
+            // Clear interval when expired
+            cleanupModal();
+        }
+
+    }
+    
+    // Update immediately
+    updateProgress();
+    
+    // Update every second
+    pbarInterval = setInterval(updateProgress, 1000);
+}
+
+
 const qrcode = new QRCode(document.getElementById('qrcode'), {
     colorDark : '#000',
     colorLight : '#fff',
     correctLevel : QRCode.CorrectLevel.L
-});
+});    
+
+function changeTunnelTimer(id, expire) {
+    fetchwithPreload(apiPath + '/tunnels/' + id + '/timer', 'POST', preload=false, kwargs={
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ expire: expire }) // expire in seconds
+    })
+    .then(data => {
+        let color = data.code === 'error' ? '#DE1A1A' : '#333';
+        showToast(data.msg, color);
+        getAllTunnels(); // Refresh the list
+    })
+    .catch(error => {
+        console.error('API error.', error);
+        showToast('API error.', '#DE1A1A');
+    });
+}
 
 function restartAllTunnels(scope="all") {
     fetchwithPreload(apiPath + '/tunnels', 'POST', preload=false, kwargs={
