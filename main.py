@@ -11,6 +11,7 @@ import flask
 from flask import session, request, redirect, url_for, flash
 import json
 import os
+import datetime
 from routes.log import log_bp
 from routes.auth import login_required
 from flask_apscheduler import APScheduler
@@ -271,6 +272,50 @@ def reset_all_tunnels():
             }
         ), 500
 
+# change expire timer
+@app.post(f"/{api_password}/tunnels/<int:tunnel_id>/timer")
+def update_tunnel_timer(tunnel_id):
+    """
+    Update the expiry timer for a specific tunnel by ID
+    """
+    if tunnel_id < 0 or tunnel_id >= len(tun_tasks):
+        return flask.jsonify({"msg": "Tunnel not found", "code": "error"}), 404
+    tunnel = tun_tasks[tunnel_id]
+    request_data = flask.request.get_json()
+    expire = request_data.get("expire")
+    expire = int(expire) # time in minutes
+    job_id = tunnel.expire_job.id if tunnel.expire_job else None
+    if expire == 0: # never expire
+        try:
+            scheduler.remove_job(job_id)
+        except Exception as e:
+            return flask.jsonify({"msg": f"Error removing expiry job: {str(e)}", "code": "error"}), 500
+        tunnel.tun_end_time = None
+        tunnel.expire_job = None
+        return flask.jsonify({"msg": "Expiry removed, tunnel set to never expire", "code": "success"}), 200
+    if tunnel.expire_job:
+        try:
+            scheduler.modify_job(
+                job_id, next_run_time=datetime.datetime.now() + datetime.timedelta(minutes=expire)
+            )
+        except Exception as e:
+            return flask.jsonify({"msg": f"Error modifying expiry job: {str(e)}", "code": "error"}), 500
+        tunnel.tun_end_time = (datetime.datetime.now() + datetime.timedelta(minutes=expire)).timestamp()
+        return flask.jsonify({"msg": "Expiry updated", "code": "success"}), 200
+    else:
+        # Create a new expiry job
+        try:
+            expire_time = datetime.datetime.now() + datetime.timedelta(minutes=expire)
+            job = scheduler.add_job(
+                id=job_id or f"expire-{tunnel.hashed}",
+                func=tunnel.stop,
+                trigger="date", run_date=expire_time,
+            )
+            tunnel.expire_job = job
+            tunnel.tun_end_time = expire_time.timestamp()
+            return flask.jsonify({"msg": "Expiry set", "code": "success"}), 200
+        except Exception as e:
+            return flask.jsonify({"msg": f"Error creating expiry job: {str(e)}", "code": "error"}), 500
 
 @app.route(f"/{api_password}/dashboard")
 @login_required

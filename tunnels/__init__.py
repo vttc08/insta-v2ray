@@ -45,7 +45,8 @@ class Tunnel:
 
     public_url: Optional[str] = None
     process: Optional[subprocess.Popen] = None
-    start_time: Optional[float] = None
+    tun_start_time: Optional[float] = None
+    tun_end_time: Optional[float] = None
     logs: list[str] = field(default_factory=list)
 
     keepalived = False
@@ -84,11 +85,12 @@ class Tunnel:
             raise ValueError("Provider instance is not set.")
         try:
             self.process, self.public_url = self.provider_instance.start_tunnel()
+            pass
         except Exception as e:
             logger.error(f"Error starting tunnel with {self.provider_name}: {e}")
             self.get_logs()
             raise RuntimeError(e)
-        self.start_time = time.time()
+        self.tun_start_time = time.time()
         self.old_url = self.url
         self.v.update(self.public_url, self.provider_name)
         self.url = self.v.url
@@ -109,6 +111,7 @@ class Tunnel:
                 id=f"expire-{self.hashed}"
             )
             self.expire_job = scheduler.get_job(f'expire-{self.hashed}')
+            self.tun_end_time = expiry.timestamp()
         logger.info(f"{self.provider_name} tunnel started: {self.public_url}")
 
     def stop(self):
@@ -121,7 +124,8 @@ class Tunnel:
             self.url = self.old_url
             self.process = None
             self.public_url = None
-            self.start_time = None
+            self.tun_start_time = None
+            self.tun_end_time = None
             remove_subscription(self)
 
             try:
