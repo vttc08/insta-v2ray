@@ -1,5 +1,5 @@
 import logging
-from configuration import api_password, subscription_password, tunnel_urls, setup_logging, custom_frontend
+from configuration import api_password, subscription_password, tunnel_urls, setup_logging, custom_frontend, mode
 setup_logging()  # Initialize logging configuration
 logger = logging.getLogger(__name__)
 
@@ -355,6 +355,10 @@ def subscription():
         "subscription.txt",
         content=subscription_content
     )
+
+# gunicorn entry point
+if mode == "prod":
+    prepare_tunnels()
 
 if __name__ == "__main__":
     prepare_tunnels()

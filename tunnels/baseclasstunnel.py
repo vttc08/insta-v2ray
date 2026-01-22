@@ -5,7 +5,7 @@ from configuration import bin_path, cloudflare_binary
 
 logger = logging.getLogger(__name__)
 
-class CloudflareBaseClass(__BaseTunnel):
+class MockCloudflareTunnel(__BaseTunnel):
     """
     This is an example using the new base class method.
     """
