@@ -15,29 +15,51 @@
 
 Insta-V2Ray is a Python-Flask full-stack application designed to create V2Ray nodes for people behind a CG-NAT or without a public IPv4 address or port-forwarding. It utilizes tunnel providers such as Cloudflare, Pinggy, Tailscale and more for tunneling WebSocket or gRPC transport V2Ray nodes behind NAT, handling TLS termination on port 443 and a a public domain name.
 
-## 📺 Demo Video
-
-[![Watch the demo](https://img.youtube.com/vi/VIDEO_ID_HERE/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID_HERE)
-
-*Click the image above to watch a quick demo of Insta-V2Ray in action.*
-
 ## Quickstart
 
-Please refer to the Wiki for detailed instructions for provider specific setup and binary installation. You'll also need to create V2Ray nodes following specific requirements, recommended creation is using [3x-ui](https://github.com/MHSanaei/3x-ui), detailed documentation is available in the Wiki.
+Please refer to the [Wiki](https://github.com/vttc08/insta-v2ray/wiki) for detailed instructions for provider specific setup and binary installation.
+
+#### [Wiki Documentation](https://github.com/vttc08/insta-v2ray/wiki)
 
 ### Bare Metal/VM/LXC
 
-Simple, just clone the repo, install Python dependencies and run the app.
+Project setup (cloning repository and installing dependencies):
 
 ```bash
-git clone
+git clone https://github.com/vttc08/insta-v2ray
 cd insta-v2ray
 pip install -r requirements.txt
 # optional helper to fetch tunnel binaries
 python -m helper.downloader cloudflared
 python -m helper.downloader zrok
-python main.py
 ```
+
+#### Very Quick Start
+
+The very quick start runs the app with default configuration, including a V2Ray server configuration hardcoded in the enviromnent. It's recommended you setup your own.
+
+```bash
+sudo bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install # Install Xray core
+cp .env.example .env # Setup default environments
+```
+
+The `xray.json` file in an example server configuration for VLESS+WS running on port 8080, the UUID is hardcoded, simiarly in the `.env.example` the `TUNNEL_URLS` variable has been set to the corresponding V2Ray URL. It's recommended to review the configuration. To run Xray.
+
+```bash
+xray -c xray.json &
+```
+
+Running the app:
+
+```bash
+gunicorn -b 0.0.0.0:5000 'main:app' # you can change the port accordingly
+```
+
+Once the app is running, navigate to the dashboard and login with `your_secure_api_password_here` (from `.env.example`):
+
+
+[http://localhost:5000/your_secure_api_password_here/login](http://localhost:5000/your_secure_api_password_here/login)
+
 
 ### Docker
 
@@ -45,7 +67,7 @@ To be implemented later.
 
 ## Configuration
 
-Please refer to the Wiki for detailed configuration instructions. Below are some quickstart examples.
+Please refer to the [Wiki](https://github.com/vttc08/insta-v2ray/wiki) for detailed configuration instructions. Below are some quickstart examples.
 
 Configuration is done via environment variables. You can copy the `.env.example` file to `.env` and edit it to set your configuration. Ensure you set a strong password for API and subscription access.
 
@@ -65,12 +87,7 @@ The files are installed into the directory pointed to by `BIN_PATH` (defaults to
 - You must use transport WebSocket or gRPC.
 - You may need to use SSH tunneling or other solutions if your V2Ray URL is not on this machine or localhost.
 
-For detailed configuration on how to setup V2Ray nodes based on requirement, please refer to the Wiki.
-
-## Usage
-Once the application is running, you can access the web interface at `http://app_host:app_port/dashboard`. The app will also expose a subscription URL for V2Ray clients under `/{your_subscription_password}/subscription`. The built-in frontend will allow you to manage your tunneled nodes. More frontends will be added later. To login to the dashboard, use the API password set in the `.env` file. 
-
-If you need to access the application remotely, especially restricted network environment, you may need to consult the Wiki for additional setup instructions.
+For detailed configuration on how to setup V2Ray nodes based on requirement, please refer to the [Wiki](https://github.com/vttc08/insta-v2ray/wiki).
 
 ## Development
 
