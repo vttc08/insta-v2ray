@@ -12,7 +12,7 @@ z_bin = ctx.get("zrok_binary", zrok_binary)
 class Zrok(__BaseTunnel):
     limit = 99
     timeout = 15 # zrok may take longer to start
-    tunnel_url_regex = r"https://[^\s]+\.zrok.io"
+    tunnel_url_regex = r"[a-zA-Z0-9][^\s]+\.zrok.io"
     cmdline = f"{z_bin} share public {{host}}:{{port}}"
 
     def __init__(self, host: str, port: int):
