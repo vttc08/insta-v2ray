@@ -34,6 +34,14 @@ python -m helper.downloader cloudflared
 python -m helper.downloader zrok
 ```
 
+Python3/pip may not be available in some Linux environment. You may need to install Python/pip/venv, it's also recommended to use a virtual environment for the project.
+
+```bash
+sudo apt install python3 python3-venv # Depending on Python version, you may need to specify python3.13-venv
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
 #### Very Quick Start
 
 The very quick start runs the app with default configuration, including a V2Ray server configuration hardcoded in the enviromnent. It's recommended you setup your own.
