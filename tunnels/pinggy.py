@@ -13,8 +13,8 @@ pinggy_counter = 0 # number of times it has been tried to reset
 
 class Pinggy(__BaseTunnel):
     limit = 10 if pinggy_premium else 1
-    tunnel_url_regex = r"https://[^\s]+\.free\.pinggy.link"
-    cmdline = f"ssh -T -p 443 -R0:{{host}}:{{port}} -o StrictHostKeyChecking=no -o ServerAliveInterval=30 {pinggy_args} {pinggy_token}@{pinggy_url}"
+    tunnel_url_regex = r"https://[^\s]+\.free\.pinggy.net"
+    cmdline = f"ssh -T -p 443 -R0:{{host}}:{{port}} -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no {pinggy_args} {pinggy_token}@{pinggy_url}"
 
     def start_tunnel(self):
         global pinggy_counter
