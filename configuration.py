@@ -41,7 +41,7 @@ cloudflare_extra_args = os.getenv("CLOUDFLARED_EXTRA_ARGS", "") # e.g. --region=
 tailscale_mode = os.getenv("TAILSCALE_MODE", None)  # None, "cli", "docker"
 
 # Zrok
-zrok_binary = os.getenv("ZROK_BINARY", "zrok")
+zrok_binary = os.getenv("ZROK_BINARY", "zrok2")
 
 # Localtunnel
 localtunnel_binary = os.getenv("LOCAL_TUNNEL_BINARY", "lt")

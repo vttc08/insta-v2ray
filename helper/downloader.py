@@ -61,12 +61,12 @@ SUPPORTED_BINARIES: Dict[str, BinaryConfig] = {
     "zrok": BinaryConfig(
         repo="openziti/zrok",
         targets={
-            ("linux", "amd64"): TargetAsset("linux_amd64.tar.gz", "tar.gz", "zrok"),
-            ("linux", "arm64"): TargetAsset("linux_arm64.tar.gz", "tar.gz", "zrok"),
-            ("darwin", "amd64"): TargetAsset("darwin_amd64.tar.gz", "tar.gz", "zrok"),
-            ("darwin", "arm64"): TargetAsset("darwin_arm64.tar.gz", "tar.gz", "zrok"),
-            ("windows", "amd64"): TargetAsset("windows_amd64.zip", "zip", "zrok.exe"),
-            ("windows", "arm64"): TargetAsset("windows_arm64.zip", "zip", "zrok.exe"),
+            ("linux", "amd64"): TargetAsset("linux_amd64.tar.gz", "tar.gz", "zrok2"),
+            ("linux", "arm64"): TargetAsset("linux_arm64.tar.gz", "tar.gz", "zrok2"),
+            ("darwin", "amd64"): TargetAsset("darwin_amd64.tar.gz", "tar.gz", "zrok2"),
+            ("darwin", "arm64"): TargetAsset("darwin_arm64.tar.gz", "tar.gz", "zrok2"),
+            ("windows", "amd64"): TargetAsset("windows_amd64.zip", "zip", "zrok2.exe"),
+            ("windows", "arm64"): TargetAsset("windows_arm64.zip", "zip", "zrok2.exe"),
         },
     ),
 }
